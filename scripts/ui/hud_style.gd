@@ -89,6 +89,30 @@ static func icon_button(kind: HudIcon.Kind, min_size: Vector2, color := TEXT_DIM
 	return content_button(icon(kind, color, px), min_size, radius)
 
 
+static func tinted_button(kind: HudIcon.Kind, bg: Color, border: Color, icon_color: Color, min_size := Vector2(34, 34)) -> Button:
+	var b := icon_button(kind, min_size, icon_color)
+	b.add_theme_stylebox_override("normal", panel_box(bg, border.darkened(0.2), 3, 0))
+	b.add_theme_stylebox_override("hover", panel_box(bg.lightened(0.1), border, 3, 0))
+	b.add_theme_stylebox_override("pressed", panel_box(bg.darkened(0.2), border, 3, 0))
+	return b
+
+
+static func close_button() -> Button:
+	var b := Button.new()
+	b.text = "×"
+	b.flat = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_color_override("font_color", TEXT_DIM)
+	b.add_theme_color_override("font_hover_color", TEXT)
+	return b
+
+
+static func spacer() -> Control:
+	var s := Control.new()
+	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return s
+
+
 static func progress_bar(width := 86.0) -> ProgressBar:
 	var bar := ProgressBar.new()
 	bar.show_percentage = false

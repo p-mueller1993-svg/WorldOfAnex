@@ -18,6 +18,7 @@ var type_styles := {
 var _resource_widgets := {}
 var _view: SolarSystemView
 var _info_panel: PlanetInfoPanel
+var _surface: PlanetSurfaceScreen
 
 
 func _ready() -> void:
@@ -292,8 +293,32 @@ func _build_view_frame() -> Control:
 
 	_view.planet_selected.connect(_info_panel.show_planet)
 	_info_panel.close_requested.connect(_view.clear_selection)
-	_info_panel.surface_requested.connect(func(p): print("Planetenoberfläche öffnen: ", p.name))
+	_info_panel.surface_requested.connect(_open_surface)
+	_view.planet_opened.connect(_open_surface)
+
+	_surface = PlanetSurfaceScreen.new()
+	_surface.visible = false
+	frame.add_child(_surface)
+	_surface.system_requested.connect(_show_system)
+	_surface.planet_requested.connect(func(planet_name):
+		for p in _view.planets:
+			if p.name == planet_name:
+				_view.select(planet_name)
+				_open_surface(p))
 	return frame
+
+
+func _open_surface(planet: Dictionary) -> void:
+	_view.visible = false
+	_view.set_process(false)
+	_surface.open(planet, _view.planets)
+	_surface.visible = true
+
+
+func _show_system() -> void:
+	_surface.visible = false
+	_view.visible = true
+	_view.set_process(true)
 
 
 func _build_side_buttons() -> Control:
@@ -339,21 +364,11 @@ func _planet(p_name: String, type: String, orbit: int, px_size: float, period: i
 	return _styled({
 		"name": p_name, "type": type, "orbit": orbit, "size": px_size,
 		"period": period, "phase": phase, "mass": mass, "moons": moons,
+		# Kantenlänge der Oberfläche in Kacheln, abhängig von der Masse (10..700)
+		"surface_size": clampi(int(sqrt(mass) / 6.0), 10, 700),
 	})
 
 
 func _styled(planet: Dictionary) -> Dictionary:
 	planet.merge(type_styles[planet.type])
 	return planet
-
-
-## Runde Planeten-Plakette in der Mitte der oberen Leiste.
-class PlanetBadge extends Control:
-	var planet: Dictionary
-
-	func _draw() -> void:
-		var c := size * 0.5
-		var r := minf(size.x, size.y) * 0.5
-		draw_circle(c, r, Color("0e0e10"), true, -1.0, true)
-		PlanetPainter.draw_planet(self, c, r * 0.8, planet)
-		draw_arc(c, r - 1.5, 0, TAU, 64, Color("3a3a3e"), 3.0, true)

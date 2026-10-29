@@ -6,6 +6,7 @@ extends Control
 enum Kind {
 	GEM, STAR, TARGET, POWER, CHAT, MENU, ALERT, GEAR, SUN, WIND, BOLT,
 	RING, HALF, CLOCK, CUBE, MAIL, LIST, ARROW_LEFT, CHEVRON_DOWN, CHEVRON_RIGHT, PLANET, SHIELD,
+	USER, ROCKET, SEND, HEART, PLUS, MINUS, SEARCH, CHEVRON_UP, COMPASS,
 }
 
 @export var kind := Kind.GEM:
@@ -134,6 +135,48 @@ func _draw() -> void:
 			for p in [Vector2(-0.7, -0.8), Vector2(0.7, -0.8), Vector2(0.7, 0.05), Vector2(0, 0.95), Vector2(-0.7, 0.05)]:
 				pts.append(c + p * r)
 			draw_colored_polygon(pts, color)
+		Kind.USER:
+			draw_arc(c + Vector2(0, -r * 0.35), r * 0.32, 0, TAU, 24, color, w, true)
+			draw_arc(c + Vector2(0, r * 0.95), r * 0.75, PI * 1.12, PI * 1.88, 16, color, w, true)
+		Kind.ROCKET:
+			var rot := PI / 4
+			draw_colored_polygon(_shape(c, r * 0.85, rot, [Vector2(0, -1), Vector2(0.32, -0.5), Vector2(0.32, 0.45), Vector2(-0.32, 0.45), Vector2(-0.32, -0.5)]), color)
+			draw_colored_polygon(_shape(c, r * 0.85, rot, [Vector2(0.32, 0.05), Vector2(0.62, 0.6), Vector2(0.32, 0.45)]), color)
+			draw_colored_polygon(_shape(c, r * 0.85, rot, [Vector2(-0.32, 0.05), Vector2(-0.32, 0.45), Vector2(-0.62, 0.6)]), color)
+			draw_colored_polygon(_shape(c, r * 0.85, rot, [Vector2(-0.18, 0.55), Vector2(0.18, 0.55), Vector2(0, 0.95)]), color)
+			draw_circle(c + Vector2(0, -0.35).rotated(rot) * r * 0.85, r * 0.13, Color(0, 0, 0, 0.5), true, -1.0, true)
+		Kind.SEND:
+			var pts := _shape(c, r, 0.0, [Vector2(-0.85, -0.05), Vector2(0.85, -0.8), Vector2(0.2, 0.85), Vector2(-0.05, 0.15), Vector2(-0.85, -0.05)])
+			draw_polyline(pts, color, w, true)
+			draw_line(pts[3], pts[1], color, w, true)
+		Kind.HEART:
+			var pts := PackedVector2Array()
+			for i in 33:
+				var t := i * TAU / 32
+				var hx := 16.0 * pow(sin(t), 3)
+				var hy := 13.0 * cos(t) - 5.0 * cos(2 * t) - 2.0 * cos(3 * t) - cos(4 * t)
+				pts.append(c + Vector2(hx, -hy - 2.0) * r / 17.0)
+			draw_polyline(pts, color, w, true)
+		Kind.PLUS:
+			draw_line(c + Vector2(-r * 0.6, 0), c + Vector2(r * 0.6, 0), color, w, true)
+			draw_line(c + Vector2(0, -r * 0.6), c + Vector2(0, r * 0.6), color, w, true)
+		Kind.MINUS:
+			draw_line(c + Vector2(-r * 0.6, 0), c + Vector2(r * 0.6, 0), color, w, true)
+		Kind.SEARCH:
+			draw_arc(c + Vector2(-0.15, -0.15) * r, r * 0.5, 0, TAU, 32, color, w, true)
+			draw_line(c + Vector2(0.22, 0.22) * r, c + Vector2(0.8, 0.8) * r, color, w * 1.3, true)
+		Kind.CHEVRON_UP:
+			_chevron(c, r, [Vector2(-0.5, 0.2), Vector2(0, -0.3), Vector2(0.5, 0.2)], w)
+		Kind.COMPASS:
+			draw_arc(c, r * 0.8, 0, TAU, 32, color, w, true)
+			draw_colored_polygon(_shape(c, r, 0.0, [Vector2(0.42, -0.42), Vector2(0.12, 0.04), Vector2(-0.42, 0.42), Vector2(-0.04, -0.12)]), color)
+
+
+func _shape(c: Vector2, factor: float, angle: float, points: Array) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for p in points:
+		pts.append(c + p.rotated(angle) * factor)
+	return pts
 
 
 func _chevron(c: Vector2, r: float, points: Array, w: float) -> void:

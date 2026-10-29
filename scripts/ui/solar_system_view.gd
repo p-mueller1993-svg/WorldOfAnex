@@ -4,6 +4,8 @@ extends Control
 ## Planeten sind anklickbar; die Auswahl wird über planet_selected gemeldet.
 
 signal planet_selected(planet: Dictionary)
+## Doppelklick auf einen Planeten: Oberfläche öffnen
+signal planet_opened(planet: Dictionary)
 
 const ORBIT_TILT := 0.42
 ## Spielsekunden pro Echtsekunde für die Bahnanimation
@@ -149,6 +151,10 @@ func _gui_input(event: InputEvent) -> void:
 		var hit := _hit_test(event.position)
 		if hit != "":
 			select(hit)
+			if event.double_click:
+				for p in planets:
+					if p.name == hit:
+						planet_opened.emit(p)
 
 
 func _hit_test(point: Vector2) -> String:
